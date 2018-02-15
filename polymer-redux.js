@@ -10,7 +10,7 @@ import {get} from '../@polymer/polymer/lib/utils/path.js';
  * @param {Object} store Redux store.
  * @return {Function} Class mixin.
  */
-export default function PolymerRedux(store) {
+export default function PolymerRedux(store, mixinProperties = { enableStateChangedEvent: true }) {
 	if (!store) {
 		throw new TypeError('PolymerRedux: expecting a redux store.');
 	} else if (!['getState', 'dispatch', 'subscribe'].every(k => typeof store[k] === 'function')) {
@@ -71,7 +71,10 @@ export default function PolymerRedux(store) {
 			const detail = store.getState();
 			update(detail);
 
-			element.dispatchEvent(new CustomEvent('state-changed', {detail}));
+			if (mixinProperties.enableStateChangedEvent) {
+				element.dispatchEvent(new CustomEvent('state-changed', {detail}));
+			}
+
 		});
 
 		subscribers.set(element, unsubscribe);
