@@ -19,6 +19,12 @@ export default function PolymerRedux(store) {
 
 	const subscribers = new Map();
 
+	function compileProps(element, properties) {
+	    return Object.keys(properties).reduce((props, name) => Object.assign(props, {
+	        [name]: element[name],
+	    }), {});
+	}
+
 	/**
 	 * Binds element's properties to state changes from the Redux store.
 	 *
@@ -54,8 +60,9 @@ export default function PolymerRedux(store) {
 			let propertiesChanged = false;
 			bindings.forEach(name => { // Perhaps .reduce() to a boolean?
 				const {statePath} = properties[name];
+				const props = compileProps(element, properties);
 				const value = (typeof statePath === 'function') ?
-					statePath.call(element, state) :
+					statePath.call(element, state, props) :
 					get(state, statePath);
 
 				const changed = element._setPendingPropertyOrPath(name, value, true);
